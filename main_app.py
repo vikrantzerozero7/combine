@@ -95,7 +95,74 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Function to dynamically import and run a module without set_page_config
+# ============== FALLBACK FUNCTIONS DEFINED FIRST ==============
+
+def show_chemistry_fallback():
+    """Show chemistry content if app1.py is not available"""
+    st.info("📘 Chemistry Mind Map Preview (app1.py not found)")
+    
+    st.markdown("""
+    ### 📋 Chemistry Content Overview:
+    
+    **Physical Chemistry:**
+    - Solutions and Colligative Properties
+    - Electrochemistry
+    - Chemical Kinetics
+    - Surface Chemistry
+    
+    **Inorganic Chemistry:**
+    - p-block Elements
+    - d and f-block Elements
+    - Coordination Compounds
+    - Metallurgy
+    
+    **Organic Chemistry:**
+    - Haloalkanes and Haloarenes
+    - Alcohols, Phenols and Ethers
+    - Aldehydes, Ketones and Carboxylic Acids
+    - Amines
+    - Biomolecules
+    
+    **Note:** Please ensure app1.py is in the same directory to see the full interactive mind map.
+    """)
+
+def show_physics_fallback():
+    """Show physics content if app2.py is not available"""
+    st.info("📕 Physics Mind Map Preview (app2.py not found)")
+    
+    st.markdown("""
+    ### 📋 Physics Content Overview:
+    
+    **Electrostatics:**
+    - Electric Charges and Fields
+    - Electrostatic Potential and Capacitance
+    
+    **Current Electricity:**
+    - Ohm's Law
+    - Kirchhoff's Laws
+    - Electrical Circuits
+    
+    **Magnetism:**
+    - Moving Charges and Magnetism
+    - Magnetism and Matter
+    - Electromagnetic Induction
+    - Alternating Current
+    
+    **Optics:**
+    - Ray Optics and Optical Instruments
+    - Wave Optics
+    
+    **Modern Physics:**
+    - Dual Nature of Radiation and Matter
+    - Atoms
+    - Nuclei
+    - Semiconductor Electronics
+    
+    **Note:** Please ensure app2.py is in the same directory to see the full interactive mind map.
+    """)
+
+# ============== FUNCTION TO SAFELY RUN MODULES ==============
+
 def run_module_safe(module_path, module_name):
     """Safely run a module by capturing its output"""
     try:
@@ -130,7 +197,8 @@ def run_module_safe(module_path, module_name):
         st.error(f"⚠️ Error loading {module_name}: {str(e)}")
         return False
 
-# Create tabs
+# ============== CREATE TABS ==============
+
 tab1, tab2, tab3 = st.tabs(["🧪 Chemistry (app1.py)", "⚡ Physics (app2.py)", "📊 Combined View"])
 
 # Chemistry Tab
@@ -145,7 +213,7 @@ with tab1:
     # Check if chemistry app exists
     chem_path = Path("app1.py")
     if chem_path.exists():
-        st.success("✅ Chemistry app loaded successfully!")
+        st.success("✅ Chemistry app found! Loading...")
         with st.spinner("Loading Chemistry content..."):
             success = run_module_safe(chem_path, "chemistry_app")
             if not success:
@@ -167,7 +235,7 @@ with tab2:
     # Check if physics app exists
     phys_path = Path("app2.py")
     if phys_path.exists():
-        st.success("✅ Physics app loaded successfully!")
+        st.success("✅ Physics app found! Loading...")
         with st.spinner("Loading Physics content..."):
             success = run_module_safe(phys_path, "physics_app")
             if not success:
@@ -245,39 +313,6 @@ with tab3:
                 <p style='color: #666;'>{desc}</p>
             </div>
             """, unsafe_allow_html=True)
-
-# Fallback functions
-def show_chemistry_fallback():
-    """Show chemistry content if app1.py is not available"""
-    st.info("📘 Chemistry Mind Map Preview (app1.py not found)")
-    
-    chapters = {
-        "Physical Chemistry": ["Solutions", "Electrochemistry", "Chemical Kinetics"],
-        "Inorganic Chemistry": ["p-block Elements", "d and f-block Elements", "Coordination Compounds"],
-        "Organic Chemistry": ["Haloalkanes", "Alcohols", "Aldehydes", "Carboxylic Acids"]
-    }
-    
-    for category, topics in chapters.items():
-        with st.expander(f"📚 {category}"):
-            for topic in topics:
-                st.markdown(f"• {topic}")
-
-def show_physics_fallback():
-    """Show physics content if app2.py is not available"""
-    st.info("📕 Physics Mind Map Preview (app2.py not found)")
-    
-    chapters = {
-        "Electrostatics": ["Electric Charges", "Potential", "Capacitance"],
-        "Current Electricity": ["Ohm's Law", "Kirchhoff's Laws", "Circuits"],
-        "Magnetism": ["Moving Charges", "Magnetism & Matter", "EMI", "AC"],
-        "Optics": ["Ray Optics", "Wave Optics", "Instruments"],
-        "Modern Physics": ["Dual Nature", "Atoms", "Nuclei", "Semiconductors"]
-    }
-    
-    for category, topics in chapters.items():
-        with st.expander(f"⚡ {category}"):
-            for topic in topics:
-                st.markdown(f"• {topic}")
 
 # Sidebar
 with st.sidebar:
