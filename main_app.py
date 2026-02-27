@@ -13,94 +13,111 @@ st.set_page_config(
 # Simple custom CSS
 st.markdown("""
 <style>
-    /* Clean tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 2px;
-        background-color: transparent;
     }
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         padding: 0px 20px;
         font-weight: 600;
     }
-    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    /* Simple header */
-    .app-header {
-        text-align: center;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-bottom: 2px solid #eee;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# Simple header
 st.markdown("<h2 style='text-align: center;'>⚡ Physics | 🧪 Chemistry</h2>", unsafe_allow_html=True)
 st.markdown("---")
 
-# Function to safely run modules
-def run_module_safe(module_path, module_name):
-    """Run a module after removing set_page_config"""
+# Function to run module in isolated namespace
+def run_module_isolated(module_path, module_name):
+    """Run module in isolated namespace"""
     try:
+        # Read file
         with open(module_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Remove st.set_page_config
+        # Remove set_page_config
         import re
-        modified_content = re.sub(
-            r'st\.set_page_config\([^)]*\)', 
-            '# removed', 
-            content
-        )
+        content = re.sub(r'st\.set_page_config\([^)]*\)', '# removed', content)
         
-        # Create temp file
-        temp_path = module_path.parent / f"temp_{module_name}.py"
-        with open(temp_path, 'w', encoding='utf-8') as f:
-            f.write(modified_content)
+        # Create unique module name
+        unique_name = f"{module_name}_{id(module_path)}"
         
-        # Import
-        spec = importlib.util.spec_from_file_location(module_name, temp_path)
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[module_name] = module
-        spec.loader.exec_module(module)
+        # Create namespace
+        namespace = {
+            'st': st,
+            '__name__': unique_name,
+            '__file__': str(module_path)
+        }
         
-        # Clean up
-        temp_path.unlink()
+        # Execute in namespace
+        exec(content, namespace)
+        
         return True
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"Error loading {module_name}: {str(e)}")
         return False
 
 # Simple fallback
 def show_fallback(subject):
-    st.info(f"📘 {subject} content will appear here")
-    st.write("Please ensure the app file is in the same directory.")
+    st.info(f"📘 {subject} app loading...")
+    if subject == "Physics":
+        st.markdown("""
+        ### Physics Chapters:
+        - Electric Charges and Fields
+        - Electrostatic Potential
+        - Current Electricity
+        - Moving Charges and Magnetism
+        - Electromagnetic Induction
+        - Alternating Current
+        - Ray Optics
+        - Wave Optics
+        - Dual Nature of Radiation
+        - Atoms and Nuclei
+        - Semiconductor Electronics
+        """)
+    else:
+        st.markdown("""
+        ### Chemistry Chapters:
+        - Solutions
+        - Electrochemistry
+        - Chemical Kinetics
+        - p-block Elements
+        - d and f-block Elements
+        - Coordination Compounds
+        - Haloalkanes and Haloarenes
+        - Alcohols, Phenols and Ethers
+        - Aldehydes, Ketones and Carboxylic Acids
+        - Amines
+        - Biomolecules
+        """)
 
-# Create just 2 tabs
+# Create 2 tabs
 tab1, tab2 = st.tabs(["🧪 CHEMISTRY", "⚡ PHYSICS"])
 
 # Chemistry Tab
 with tab1:
     chem_path = Path("app1.py")
     if chem_path.exists():
+        st.success("✅ Chemistry app found")
         with st.spinner("Loading Chemistry..."):
-            if not run_module_safe(chem_path, "chemistry_app"):
+            if not run_module_isolated(chem_path, "chemistry"):
                 show_fallback("Chemistry")
     else:
+        st.warning("⚠️ app1.py not found")
         show_fallback("Chemistry")
 
 # Physics Tab
 with tab2:
     phys_path = Path("app2.py")
     if phys_path.exists():
+        st.success("✅ Physics app found")
         with st.spinner("Loading Physics..."):
-            if not run_module_safe(phys_path, "physics_app"):
+            if not run_module_isolated(phys_path, "physics"):
                 show_fallback("Physics")
     else:
+        st.warning("⚠️ app2.py not found")
         show_fallback("Physics")
 
-# Simple footer
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>⚡ Physics | 🧪 Chemistry</p>", unsafe_allow_html=True)
