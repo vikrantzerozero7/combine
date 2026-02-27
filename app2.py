@@ -2055,9 +2055,9 @@ st.sidebar.title("Language Settings / भाषा सेटिंग्स")
 selected_language = st.sidebar.radio(
     "Select Language / भाषा चुनें",
     options=list(LANGUAGES.keys()),
-    format_func=lambda x: LANGUAGES[x]
+    format_func=lambda x: LANGUAGES[x],
+    key="physics_language_selector"  # ← अलग unique key
 )
-
 st.sidebar.markdown("---")
 st.sidebar.title("Instructions / निर्देश")
 if selected_language == "english":
