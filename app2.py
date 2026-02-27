@@ -2052,7 +2052,7 @@ LAYOUT_CONFIG = {
 # ============================================
 
 st.sidebar.title("Language Settings / भाषा सेटिंग्स")
-selected_language = "english"
+selected_language = "hindi"
 st.sidebar.markdown("---")
 st.sidebar.title("Instructions / निर्देश")
 if selected_language == "english":
