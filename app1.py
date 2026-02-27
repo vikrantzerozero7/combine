@@ -3131,7 +3131,7 @@ with col3:
         """)
 
 # Debug
-if st.checkbox("Show Debug Info / डीबग जानकारी दिखाएं"):
+if st.checkbox("Show Debug Info / डीबग जानकारी दिखाएं", key="chem_debug"):
     total_chapters = len(CHEMISTRY_CONFIG["chapters"])
     total_topics = 0
     total_concepts = 0
