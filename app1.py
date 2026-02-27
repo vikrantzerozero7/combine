@@ -2248,7 +2248,8 @@ st.sidebar.title("Language Settings / भाषा सेटिंग्स")
 selected_language = st.sidebar.radio(
     "Select Language / भाषा चुनें",
     options=list(LANGUAGES.keys()),
-    format_func=lambda x: LANGUAGES[x]
+    format_func=lambda x: LANGUAGES[x],
+    key="chemistry_language_selector"  # ← यह line add करें
 )
 
 st.sidebar.markdown("---")
