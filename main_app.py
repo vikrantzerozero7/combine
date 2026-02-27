@@ -3,372 +3,104 @@ import importlib.util
 import sys
 from pathlib import Path
 
-# Page config - यह सबसे पहले होना चाहिए
+# Page config
 st.set_page_config(
-    page_title="Physics & Chemistry Mind Maps",
+    page_title="Physics & Chemistry",
     page_icon="🔬",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
-# Custom CSS for better UI
+# Simple custom CSS
 st.markdown("""
 <style>
-    /* Main title styling */
-    .main-title {
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }
-    .main-title h1 {
-        margin: 0;
-        font-size: 2.5em;
-    }
-    .main-title p {
-        margin: 5px 0 0;
-        font-size: 1.2em;
-        opacity: 0.9;
-    }
-    
-    /* Tab styling */
+    /* Clean tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 20px;
-        background-color: #f0f2f6;
-        padding: 10px;
-        border-radius: 10px;
+        gap: 2px;
+        background-color: transparent;
     }
     .stTabs [data-baseweb="tab"] {
-        height: 60px;
-        padding: 10px 30px;
-        font-size: 18px;
+        height: 50px;
+        padding: 0px 20px;
         font-weight: 600;
-        border-radius: 8px;
     }
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white !important;
-    }
-    
-    /* Subject badges */
-    .subject-badge {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-weight: bold;
-        margin: 5px;
-    }
-    .physics-badge {
-        background: #FF9933;
-        color: white;
-    }
-    .chemistry-badge {
-        background: #0066CC;
-        color: white;
-    }
-    
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    
-    /* Sidebar styling */
-    .sidebar-info {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
+    /* Simple header */
+    .app-header {
+        text-align: center;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #eee;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Title
-st.markdown("""
-<div class="main-title">
-    <h1>🔬 Science Mind Maps 📚</h1>
-    <p>
-        <span class="subject-badge physics-badge">⚡ Physics</span>
-        <span class="subject-badge chemistry-badge">🧪 Chemistry</span>
-    </p>
-    <p>Complete Class 12 NCERT - Bilingual (English/Hindi)</p>
-</div>
-""", unsafe_allow_html=True)
+# Simple header
+st.markdown("<h2 style='text-align: center;'>⚡ Physics | 🧪 Chemistry</h2>", unsafe_allow_html=True)
+st.markdown("---")
 
-# ============== FALLBACK FUNCTIONS DEFINED FIRST ==============
-
-def show_chemistry_fallback():
-    """Show chemistry content if app1.py is not available"""
-    st.info("📘 Chemistry Mind Map Preview (app1.py not found)")
-    
-    st.markdown("""
-    ### 📋 Chemistry Content Overview:
-    
-    **Physical Chemistry:**
-    - Solutions and Colligative Properties
-    - Electrochemistry
-    - Chemical Kinetics
-    - Surface Chemistry
-    
-    **Inorganic Chemistry:**
-    - p-block Elements
-    - d and f-block Elements
-    - Coordination Compounds
-    - Metallurgy
-    
-    **Organic Chemistry:**
-    - Haloalkanes and Haloarenes
-    - Alcohols, Phenols and Ethers
-    - Aldehydes, Ketones and Carboxylic Acids
-    - Amines
-    - Biomolecules
-    
-    **Note:** Please ensure app1.py is in the same directory to see the full interactive mind map.
-    """)
-
-def show_physics_fallback():
-    """Show physics content if app2.py is not available"""
-    st.info("📕 Physics Mind Map Preview (app2.py not found)")
-    
-    st.markdown("""
-    ### 📋 Physics Content Overview:
-    
-    **Electrostatics:**
-    - Electric Charges and Fields
-    - Electrostatic Potential and Capacitance
-    
-    **Current Electricity:**
-    - Ohm's Law
-    - Kirchhoff's Laws
-    - Electrical Circuits
-    
-    **Magnetism:**
-    - Moving Charges and Magnetism
-    - Magnetism and Matter
-    - Electromagnetic Induction
-    - Alternating Current
-    
-    **Optics:**
-    - Ray Optics and Optical Instruments
-    - Wave Optics
-    
-    **Modern Physics:**
-    - Dual Nature of Radiation and Matter
-    - Atoms
-    - Nuclei
-    - Semiconductor Electronics
-    
-    **Note:** Please ensure app2.py is in the same directory to see the full interactive mind map.
-    """)
-
-# ============== FUNCTION TO SAFELY RUN MODULES ==============
-
+# Function to safely run modules
 def run_module_safe(module_path, module_name):
-    """Safely run a module by capturing its output"""
+    """Run a module after removing set_page_config"""
     try:
-        # Read the module file
         with open(module_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Remove any st.set_page_config calls
+        # Remove st.set_page_config
         import re
         modified_content = re.sub(
             r'st\.set_page_config\([^)]*\)', 
-            '# st.set_page_config removed for multi-app compatibility', 
+            '# removed', 
             content
         )
         
-        # Create a temporary file
+        # Create temp file
         temp_path = module_path.parent / f"temp_{module_name}.py"
         with open(temp_path, 'w', encoding='utf-8') as f:
             f.write(modified_content)
         
-        # Import the modified module
+        # Import
         spec = importlib.util.spec_from_file_location(module_name, temp_path)
         module = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = module
         spec.loader.exec_module(module)
         
-        # Clean up temp file
+        # Clean up
         temp_path.unlink()
-        
         return True
     except Exception as e:
-        st.error(f"⚠️ Error loading {module_name}: {str(e)}")
+        st.error(f"Error: {str(e)}")
         return False
 
-# ============== CREATE TABS ==============
+# Simple fallback
+def show_fallback(subject):
+    st.info(f"📘 {subject} content will appear here")
+    st.write("Please ensure the app file is in the same directory.")
 
-tab1, tab2, tab3 = st.tabs(["🧪 Chemistry (app1.py)", "⚡ Physics (app2.py)", "📊 Combined View"])
+# Create just 2 tabs
+tab1, tab2 = st.tabs(["🧪 CHEMISTRY", "⚡ PHYSICS"])
 
 # Chemistry Tab
 with tab1:
-    st.markdown("""
-    <div style='text-align: center; padding: 10px; background: #e3f2fd; border-radius: 10px; margin-bottom: 20px;'>
-        <h2>🧪 Chemistry Mind Map</h2>
-        <p style='color: #666;'>Physical • Inorganic • Organic Chemistry</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Check if chemistry app exists
     chem_path = Path("app1.py")
     if chem_path.exists():
-        st.success("✅ Chemistry app found! Loading...")
-        with st.spinner("Loading Chemistry content..."):
-            success = run_module_safe(chem_path, "chemistry_app")
-            if not success:
-                st.error("Failed to load Chemistry app. Showing fallback content.")
-                show_chemistry_fallback()
+        with st.spinner("Loading Chemistry..."):
+            if not run_module_safe(chem_path, "chemistry_app"):
+                show_fallback("Chemistry")
     else:
-        st.error("❌ app1.py not found in current directory!")
-        show_chemistry_fallback()
+        show_fallback("Chemistry")
 
 # Physics Tab
 with tab2:
-    st.markdown("""
-    <div style='text-align: center; padding: 10px; background: #fff3e0; border-radius: 10px; margin-bottom: 20px;'>
-        <h2>⚡ Physics Mind Map</h2>
-        <p style='color: #666;'>Electrostatics • Optics • Modern Physics</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Check if physics app exists
     phys_path = Path("app2.py")
     if phys_path.exists():
-        st.success("✅ Physics app found! Loading...")
-        with st.spinner("Loading Physics content..."):
-            success = run_module_safe(phys_path, "physics_app")
-            if not success:
-                st.error("Failed to load Physics app. Showing fallback content.")
-                show_physics_fallback()
+        with st.spinner("Loading Physics..."):
+            if not run_module_safe(phys_path, "physics_app"):
+                show_fallback("Physics")
     else:
-        st.error("❌ app2.py not found in current directory!")
-        show_physics_fallback()
+        show_fallback("Physics")
 
-# Combined Tab
-with tab3:
-    st.markdown("## 📊 Complete Science Package")
-    
-    # Create metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Total Chapters", "30", "14+16")
-    with col2:
-        st.metric("Total Topics", "95+", "50+45")
-    with col3:
-        st.metric("Total Concepts", "220+", "100+120")
-    with col4:
-        st.metric("Languages", "2", "English/Hindi")
-    
-    # Subject comparison
-    col_left, col_right = st.columns(2)
-    
-    with col_left:
-        st.markdown("""
-        <div style='background: #e3f2fd; padding: 20px; border-radius: 10px;'>
-            <h3 style='color: #0066CC;'>🧪 Chemistry (app1.py)</h3>
-            <ul>
-                <li><b>Physical Chemistry</b>: Solutions, Electrochemistry, Kinetics</li>
-                <li><b>Inorganic Chemistry</b>: p-block, d-block, f-block, Coordination</li>
-                <li><b>Organic Chemistry</b>: Haloalkanes, Alcohols, Aldehydes, Carboxylic Acids</li>
-                <li><b>Biomolecules</b>: Carbohydrates, Proteins, Nucleic Acids</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col_right:
-        st.markdown("""
-        <div style='background: #fff3e0; padding: 20px; border-radius: 10px;'>
-            <h3 style='color: #FF9933;'>⚡ Physics (app2.py)</h3>
-            <ul>
-                <li><b>Electrostatics</b>: Charges, Fields, Potential, Capacitance</li>
-                <li><b>Current Electricity</b>: Ohm's law, Circuits, Kirchhoff's laws</li>
-                <li><b>Magnetism</b>: Moving charges, Matter, EMI, AC</li>
-                <li><b>Optics</b>: Ray optics, Wave optics, Instruments</li>
-                <li><b>Modern Physics</b>: Dual nature, Atoms, Nuclei, Semiconductors</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Features comparison
-    st.markdown("---")
-    st.markdown("### 🌟 Common Features")
-    
-    feat_cols = st.columns(3)
-    features = [
-        ("🌐 Bilingual", "English & Hindi support in both apps"),
-        ("🖱️ Interactive", "Double-click to expand/collapse nodes"),
-        ("🎨 Visual", "Color-coded mind maps for easy learning"),
-        ("📱 Responsive", "Works on desktop and mobile"),
-        ("📚 NCERT Based", "Complete Class 12 curriculum"),
-        ("🎯 Exam Focus", "Important formulas and concepts highlighted")
-    ]
-    
-    for i, (title, desc) in enumerate(features):
-        with feat_cols[i % 3]:
-            st.markdown(f"""
-            <div style='background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 5px;'>
-                <h4>{title}</h4>
-                <p style='color: #666;'>{desc}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-# Sidebar
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/000000/physics.png", width=60)
-    st.image("https://img.icons8.com/color/96/000000/chemistry.png", width=60)
-    st.markdown("## 📋 App Info")
-    
-    st.markdown("""
-    <div class='sidebar-info'>
-        <h4>📁 Loaded Files:</h4>
-    """, unsafe_allow_html=True)
-    
-    # Show which files are loaded
-    if Path("app1.py").exists():
-        st.success("✅ app1.py (Chemistry)")
-    else:
-        st.error("❌ app1.py not found")
-    
-    if Path("app2.py").exists():
-        st.success("✅ app2.py (Physics)")
-    else:
-        st.error("❌ app2.py not found")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.markdown("### 🎯 Quick Tips")
-    st.info("""
-    **How to use:**
-    1. Click on tabs to switch subjects
-    2. In mind maps, double-click to expand
-    3. Click subject title to show/hide all
-    4. Use Combined View for overview
-    """)
-    
-    st.markdown("---")
-    st.markdown("### 🔗 Quick Links")
-    if st.button("🔄 Reload Chemistry"):
-        st.rerun()
-    if st.button("🔄 Reload Physics"):
-        st.rerun()
-    
-    st.markdown("---")
-    st.markdown("### 📱 About")
-    st.markdown("""
-    **Version:** 2.0.0  
-    **Subjects:** Physics + Chemistry  
-    **Classes:** 11th & 12th  
-    **Language:** Bilingual (EN/HI)
-    """)
-
-# Footer
+# Simple footer
 st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #666; padding: 20px;'>
-    <p>Made with ❤️ for Science Students | Complete NCERT Coverage | Bilingual Learning</p>
-    <p>⚡ Physics (app2.py) + 🧪 Chemistry (app1.py) = Complete Science Package</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666; font-size: 12px;'>⚡ Physics | 🧪 Chemistry</p>", unsafe_allow_html=True)
