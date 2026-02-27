@@ -2052,12 +2052,7 @@ LAYOUT_CONFIG = {
 # ============================================
 
 st.sidebar.title("Language Settings / भाषा सेटिंग्स")
-selected_language = st.sidebar.radio(
-    "Select Language / भाषा चुनें",
-    options=list(LANGUAGES.keys()),
-    format_func=lambda x: LANGUAGES[x], key= "phy"
-)
-
+selected_language = "english"
 st.sidebar.markdown("---")
 st.sidebar.title("Instructions / निर्देश")
 if selected_language == "english":
