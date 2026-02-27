@@ -1,57 +1,45 @@
 import streamlit as st
 import importlib.util
 import sys
+import re
 from pathlib import Path
 
-# Page config
-st.set_page_config(
-    page_title="Physics & Chemistry",
-    page_icon="🔬",
-    layout="wide"
-)
+st.set_page_config(layout="wide")
 
-# Simple custom CSS
-st.markdown("""
-<style>
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        padding: 0px 20px;
-        font-weight: 600;
-    }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-</style>
-""", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>⚡ Physics | 🧪 Chemistry</h1>", unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center;'>⚡ Physics | 🧪 Chemistry</h2>", unsafe_allow_html=True)
-st.markdown("---")
+# Function to auto-fix radio button IDs
+def fix_radio_ids(content, prefix):
+    """Add unique keys to all radio buttons"""
+    
+    # Pattern to find st.radio calls without key
+    pattern = r'(st\.sidebar\.radio|st\.radio)\s*\(\s*([^,)]+)(?:,?\s*options\s*=\s*([^,)]+))?'
+    
+    def add_key(match):
+        full_match = match.group(0)
+        if 'key=' not in full_match:
+            # Add unique key
+            if full_match.endswith(')'):
+                return full_match[:-1] + f', key="{prefix}_radio_{hash(full_match)%10000}")'
+        return full_match
+    
+    modified = re.sub(pattern, add_key, content, flags=re.DOTALL)
+    return modified
 
-# Function to run module in isolated namespace
-def run_module_isolated(module_path, module_name):
-    """Run module in isolated namespace"""
+# Function to run module
+def run_module_safe(module_path, module_name, prefix):
     try:
-        # Read file
         with open(module_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
         # Remove set_page_config
-        import re
         content = re.sub(r'st\.set_page_config\([^)]*\)', '# removed', content)
         
-        # Create unique module name
-        unique_name = f"{module_name}_{id(module_path)}"
-        
-        # Create namespace
-        namespace = {
-            'st': st,
-            '__name__': unique_name,
-            '__file__': str(module_path)
-        }
+        # Fix radio button IDs
+        content = fix_radio_ids(content, prefix)
         
         # Execute in namespace
+        namespace = {'st': st, '__name__': f"{module_name}_{prefix}"}
         exec(content, namespace)
         
         return True
@@ -61,63 +49,25 @@ def run_module_isolated(module_path, module_name):
 
 # Simple fallback
 def show_fallback(subject):
-    st.info(f"📘 {subject} app loading...")
-    if subject == "Physics":
-        st.markdown("""
-        ### Physics Chapters:
-        - Electric Charges and Fields
-        - Electrostatic Potential
-        - Current Electricity
-        - Moving Charges and Magnetism
-        - Electromagnetic Induction
-        - Alternating Current
-        - Ray Optics
-        - Wave Optics
-        - Dual Nature of Radiation
-        - Atoms and Nuclei
-        - Semiconductor Electronics
-        """)
-    else:
-        st.markdown("""
-        ### Chemistry Chapters:
-        - Solutions
-        - Electrochemistry
-        - Chemical Kinetics
-        - p-block Elements
-        - d and f-block Elements
-        - Coordination Compounds
-        - Haloalkanes and Haloarenes
-        - Alcohols, Phenols and Ethers
-        - Aldehydes, Ketones and Carboxylic Acids
-        - Amines
-        - Biomolecules
-        """)
+    st.info(f"Loading {subject}...")
 
-# Create 2 tabs
+# Create tabs
 tab1, tab2 = st.tabs(["🧪 CHEMISTRY", "⚡ PHYSICS"])
 
-# Chemistry Tab
 with tab1:
     chem_path = Path("app1.py")
     if chem_path.exists():
-        st.success("✅ Chemistry app found")
         with st.spinner("Loading Chemistry..."):
-            if not run_module_isolated(chem_path, "chemistry"):
+            if not run_module_safe(chem_path, "chemistry", "chem"):
                 show_fallback("Chemistry")
     else:
-        st.warning("⚠️ app1.py not found")
-        show_fallback("Chemistry")
+        st.error("app1.py not found")
 
-# Physics Tab
 with tab2:
     phys_path = Path("app2.py")
     if phys_path.exists():
-        st.success("✅ Physics app found")
         with st.spinner("Loading Physics..."):
-            if not run_module_isolated(phys_path, "physics"):
+            if not run_module_safe(phys_path, "physics", "phys"):
                 show_fallback("Physics")
     else:
-        st.warning("⚠️ app2.py not found")
-        show_fallback("Physics")
-
-st.markdown("---")
+        st.error("app2.py not found")
