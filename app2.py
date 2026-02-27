@@ -2921,7 +2921,7 @@ with col3:
         """)
 
 # Debug
-if st.checkbox("Show Debug Info / डीबग जानकारी दिखाएं"):
+if st.checkbox("Show Debug Info / डीबग जानकारी दिखाएं", key="phy_debug"):
     total_chapters = len(PHYSICS_CONFIG["chapters"])
     total_topics = 0
     total_concepts = 0
