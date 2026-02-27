@@ -2922,6 +2922,7 @@ with col3:
 
 # Debug
 if st.checkbox("Show Debug Info / डीबग जानकारी दिखाएं", key="phy_debug"):
+    st.write(f"**Debug - selected_language = {selected_language}**")
     total_chapters = len(PHYSICS_CONFIG["chapters"])
     total_topics = 0
     total_concepts = 0
